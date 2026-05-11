@@ -576,7 +576,7 @@ const ExploreTab = ({ user, myTeam }) => {
             Ranked by preferred-domain overlap first, then by recent registrations.
           </p>
         </div>
-          <div className="relative w-full max-w-xs">
+          <div className="relative w-full md:max-w-xs">
             <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/20" />
             <input
               className="input-glass !pl-10 border-white/10 focus:border-white transition-all bg-black"
@@ -671,7 +671,7 @@ const ExploreTab = ({ user, myTeam }) => {
               Browse every other team and send a join request only when you are not already in one.
             </p>
           </div>
-          <div className="relative w-full max-w-xs">
+          <div className="relative w-full md:max-w-xs">
             <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/20" />
             <input
               className="input-glass !pl-10 border-white/10 focus:border-white transition-all bg-black"
