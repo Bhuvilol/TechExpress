@@ -30,10 +30,10 @@ services:
       ACCESS_TOKEN_EXPIRY: 2h
       BCRYPT_ROUNDS: 12
       CORS_ORIGIN: http://localhost,http://localhost:80,http://localhost:5173,http://127.0.0.1
-      ADMIN_SEED_EMAIL: admin@vortex.local
-      ADMIN_SEED_PASSWORD: admin1234
-      JURY_SEED_PASSWORD: jury1234
-      COORDINATOR_SEED_PASSWORD: coord1234
+      ADMIN_SEED_EMAIL: admin@vortex.com
+      ADMIN_SEED_PASSWORD: admin123
+      JURY_SEED_PASSWORD: jury123
+      COORDINATOR_SEED_PASSWORD: coord123
     ports:
       - "3001:3001"
     depends_on:

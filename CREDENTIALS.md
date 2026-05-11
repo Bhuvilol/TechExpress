@@ -27,8 +27,8 @@ The seed is idempotent and never overwrites an existing `passwordHash`.
 
 | Field | Value |
 |---|---|
-| Email | `admin@vortex.local` |
-| Password | `admin1234` |
+| Email | `admin@vortex.com` |
+| Password | `admin123` |
 | Role | `ADMIN` |
 
 Use this to test the global verification queue, taxonomy CRUD, hackathon
@@ -43,9 +43,9 @@ All juries share the same default password.
 
 | Email | Password | Role |
 |---|---|---|
-| `jury.alpha@vortex.local`   | `jury1234` | `JURY` |
-| `jury.bravo@vortex.local`   | `jury1234` | `JURY` |
-| `jury.charlie@vortex.local` | `jury1234` | `JURY` |
+| `jury.alpha@vortex.com`   | `jury123` | `JURY` |
+| `jury.bravo@vortex.com`   | `jury123` | `JURY` |
+| `jury.charlie@vortex.com` | `jury123` | `JURY` |
 
 A jury can only score teams an admin has assigned to them via
 `Admin -> Jury Assignments`, and only when the round is `UNLOCKED`.
@@ -58,16 +58,16 @@ All coordinators share the same default password.
 
 | Institution | Email | Password | Role |
 |---|---|---|---|
-| `ITER \| SOA` | `coordinator.iter@vortex.local` | `coord1234` | `COORDINATOR` |
-| `SPS \| SOA` | `coordinator.sps@vortex.local` | `coord1234` | `COORDINATOR` |
-| `SNC \| SOA` | `coordinator.snc@vortex.local` | `coord1234` | `COORDINATOR` |
-| `IMS & SUM \| SOA` | `coordinator.ims@vortex.local` | `coord1234` | `COORDINATOR` |
-| `IDS \| SOA` | `coordinator.ids@vortex.local` | `coord1234` | `COORDINATOR` |
-| `SNIL \| SOA` | `coordinator.snil@vortex.local` | `coord1234` | `COORDINATOR` |
-| `IAS \| SOA` | `coordinator.ias@vortex.local` | `coord1234` | `COORDINATOR` |
-| `IVS & AH \| SOA` | `coordinator.ivs@vortex.local` | `coord1234` | `COORDINATOR` |
-| `IBCS \| SOA` | `coordinator.ibcs@vortex.local` | `coord1234` | `COORDINATOR` |
-| `SHM \| SOA` | `coordinator.shm@vortex.local` | `coord1234` | `COORDINATOR` |
+| `ITER \| SOA` | `coordinator.iter@vortex.com` | `coord123` | `COORDINATOR` |
+| `SPS \| SOA` | `coordinator.sps@vortex.com` | `coord123` | `COORDINATOR` |
+| `SNC \| SOA` | `coordinator.snc@vortex.com` | `coord123` | `COORDINATOR` |
+| `IMS & SUM \| SOA` | `coordinator.ims@vortex.com` | `coord123` | `COORDINATOR` |
+| `IDS \| SOA` | `coordinator.ids@vortex.com` | `coord123` | `COORDINATOR` |
+| `SNIL \| SOA` | `coordinator.snil@vortex.com` | `coord123` | `COORDINATOR` |
+| `IAS \| SOA` | `coordinator.ias@vortex.com` | `coord123` | `COORDINATOR` |
+| `IVS & AH \| SOA` | `coordinator.ivs@vortex.com` | `coord123` | `COORDINATOR` |
+| `IBCS \| SOA` | `coordinator.ibcs@vortex.com` | `coord123` | `COORDINATOR` |
+| `SHM \| SOA` | `coordinator.shm@vortex.com` | `coord123` | `COORDINATOR` |
 
 Each coordinator can only review `PENDING` students from their own
 institution. They can approve or reject from the coordinator portal.
@@ -95,14 +95,14 @@ Not seeded. To test student flows:
 
 | Registration No | Full Name | Email | Institution |
 |---|---|---|---|
-| `2026-VRTX-100` | Alice Vance  | `alice.vance@vortex.local`  | ITER \| SOA |
-| `2026-VRTX-101` | Bob Smith    | `bob.smith@vortex.local`    | SPS \| SOA |
-| `2026-VRTX-102` | Carla Mendes | `carla.mendes@vortex.local` | SNC \| SOA |
-| `2026-VRTX-103` | Devraj Patil | `devraj.patil@vortex.local` | IMS & SUM \| SOA |
-| `2026-VRTX-104` | Esha Nair    | `esha.nair@vortex.local`    | IDS \| SOA |
-| `2026-VRTX-105` | Farhan Iqbal | `farhan.iqbal@vortex.local` | SNIL \| SOA |
-| `2026-VRTX-106` | Gita Roy     | `gita.roy@vortex.local`     | IAS \| SOA |
-| `2026-VRTX-107` | Hari Menon   | `hari.menon@vortex.local`   | IVS & AH \| SOA |
+| `2026-VRTX-100` | Alice Vance  | `alice.vance@vortex.com`  | ITER \| SOA |
+| `2026-VRTX-101` | Bob Smith    | `bob.smith@vortex.com`    | SPS \| SOA |
+| `2026-VRTX-102` | Carla Mendes | `carla.mendes@vortex.com` | SNC \| SOA |
+| `2026-VRTX-103` | Devraj Patil | `devraj.patil@vortex.com` | IMS & SUM \| SOA |
+| `2026-VRTX-104` | Esha Nair    | `esha.nair@vortex.com`    | IDS \| SOA |
+| `2026-VRTX-105` | Farhan Iqbal | `farhan.iqbal@vortex.com` | SNIL \| SOA |
+| `2026-VRTX-106` | Gita Roy     | `gita.roy@vortex.com`     | IAS \| SOA |
+| `2026-VRTX-107` | Hari Menon   | `hari.menon@vortex.com`   | IVS & AH \| SOA |
 
 ---
 

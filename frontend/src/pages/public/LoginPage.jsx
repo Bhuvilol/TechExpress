@@ -72,7 +72,7 @@ export const LoginPage = () => {
                 className="input-glass h-12 !pl-14 border-white/10 focus:border-white transition-all bg-black"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="operative@vortex.local"
+                placeholder="operative@vortex.com"
               />
             </div>
           </FormField>

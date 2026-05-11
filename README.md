@@ -90,10 +90,10 @@ seed if you want different defaults (see [§6](#6-day-to-day-commands)).
 
 | Role | Email | Password |
 |---|---|---|
-| **Admin** | `admin@vortex.local` | `admin1234` |
-| **Jury (1)** | `jury.alpha@vortex.local` | `jury1234` |
-| **Jury (2)** | `jury.bravo@vortex.local` | `jury1234` |
-| **Jury (3)** | `jury.charlie@vortex.local` | `jury1234` |
+| **Admin** | `admin@vortex.com` | `admin123` |
+| **Jury (1)** | `jury.alpha@vortex.com` | `jury123` |
+| **Jury (2)** | `jury.bravo@vortex.com` | `jury123` |
+| **Jury (3)** | `jury.charlie@vortex.com` | `jury123` |
 
 **Students are not seeded** — they self-register through `/register`
 and are then verified by an admin, which generates and emails a fresh
@@ -133,7 +133,7 @@ To experience every flow end-to-end:
 ### As Admin
 
 1. Open <http://localhost> → click **Sign in**.
-2. Use `admin@vortex.local` / `admin1234`. You land in the admin shell.
+2. Use `admin@vortex.com` / `admin123`. You land in the admin shell.
 3. Skim the sidebar — Verification, Registry, Teams, Rules, Rounds,
    Taxonomy, Broadcast, Audit Log.
 4. Visit **Rules** and confirm the defaults
@@ -170,7 +170,7 @@ To experience every flow end-to-end:
 
 ### As Jury
 
-15. Sign in as `jury.alpha@vortex.local` / `jury1234`.
+15. Sign in as `jury.alpha@vortex.com` / `jury123`.
 16. You'll see the finalized team in the scoring board.
 17. **Admin must unlock a round first**: go to admin → **Rounds** →
     set Round 1 to **UNLOCKED**.
@@ -303,9 +303,9 @@ ACCESS_TOKEN_SECRET="dev-access-secret-please-rotate-32chars-min"
 ACCESS_TOKEN_EXPIRY="2h"
 BCRYPT_ROUNDS=12
 CORS_ORIGIN="http://localhost,http://localhost:5173,http://127.0.0.1"
-ADMIN_SEED_EMAIL="admin@vortex.local"
-ADMIN_SEED_PASSWORD="admin1234"
-JURY_SEED_PASSWORD="jury1234"
+ADMIN_SEED_EMAIL="admin@vortex.com"
+ADMIN_SEED_PASSWORD="admin123"
+JURY_SEED_PASSWORD="jury123"
 ```
 
 Backend now serves at <http://localhost:3001>.
