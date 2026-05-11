@@ -14,4 +14,9 @@ router.get('/',
   ah(audit.list),
 );
 
+router.get('/export.xlsx',
+  validate({ query: listAuditQuerySchema }),
+  ah(audit.exportXlsx),
+);
+
 export default router;
