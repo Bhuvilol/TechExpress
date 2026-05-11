@@ -19,8 +19,9 @@ const schema = z.object({
     .transform((s) => s.split(',').map((o) => o.trim()).filter(Boolean)),
 
   ADMIN_SEED_EMAIL: z.string().email().optional(),
-  ADMIN_SEED_PASSWORD: z.string().min(8).optional(),
-  COORDINATOR_SEED_PASSWORD: z.string().min(8).optional(),
+  ADMIN_SEED_PASSWORD: z.string().min(7).optional(),
+  JURY_SEED_PASSWORD: z.string().min(7).optional(),
+  COORDINATOR_SEED_PASSWORD: z.string().min(7).optional(),
 });
 
 const parsed = schema.safeParse(process.env);

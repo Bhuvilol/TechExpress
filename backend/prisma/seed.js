@@ -30,11 +30,11 @@ const prisma = new PrismaClient({ adapter });
 const log = (msg) => console.log(`[seed] ${msg}`);
 
 const ROUNDS = parseInt(process.env.BCRYPT_ROUNDS ?? '12', 10);
-const ADMIN_EMAIL = process.env.ADMIN_SEED_EMAIL ?? 'admin@vortex.local';
-const ADMIN_PASSWORD = process.env.ADMIN_SEED_PASSWORD ?? 'change-me-on-first-login';
+const ADMIN_EMAIL = process.env.ADMIN_SEED_EMAIL ?? 'admin@vortex.com';
+const ADMIN_PASSWORD = process.env.ADMIN_SEED_PASSWORD ?? 'admin123';
 
-const JURY_DEFAULT_PASSWORD = process.env.JURY_SEED_PASSWORD ?? 'jury-dev-only';
-const COORDINATOR_DEFAULT_PASSWORD = process.env.COORDINATOR_SEED_PASSWORD ?? 'coord1234';
+const JURY_DEFAULT_PASSWORD = process.env.JURY_SEED_PASSWORD ?? 'jury123';
+const COORDINATOR_DEFAULT_PASSWORD = process.env.COORDINATOR_SEED_PASSWORD ?? 'coord123';
 
 // ── singletons ──────────────────────────────────────────────────────────────
 
@@ -241,15 +241,15 @@ const seedAdmin = async () => {
     password: ADMIN_PASSWORD,
   });
   log(`Admin ready (${admin.email})`);
-  if (ADMIN_PASSWORD === 'change-me-on-first-login') {
+  if (ADMIN_PASSWORD === 'admin123') {
     log('  ⚠ using default admin password — set ADMIN_SEED_PASSWORD in .env');
   }
 };
 
 const JURY_SPECS = [
-  { email: 'jury.alpha@vortex.local',  fullName: 'Jury Alpha'  },
-  { email: 'jury.bravo@vortex.local',  fullName: 'Jury Bravo'  },
-  { email: 'jury.charlie@vortex.local',fullName: 'Jury Charlie'},
+  { email: 'jury.alpha@vortex.com',  fullName: 'Jury Alpha'  },
+  { email: 'jury.bravo@vortex.com',  fullName: 'Jury Bravo'  },
+  { email: 'jury.charlie@vortex.com',fullName: 'Jury Charlie'},
 ];
 
 const seedJuries = async () => {
@@ -264,16 +264,16 @@ const seedJuries = async () => {
 };
 
 const COORDINATOR_SPECS = [
-  { institutionName: 'ITER | SOA', email: 'coordinator.iter@vortex.local' },
-  { institutionName: 'SPS | SOA', email: 'coordinator.sps@vortex.local' },
-  { institutionName: 'SNC | SOA', email: 'coordinator.snc@vortex.local' },
-  { institutionName: 'IMS & SUM | SOA', email: 'coordinator.ims@vortex.local' },
-  { institutionName: 'IDS | SOA', email: 'coordinator.ids@vortex.local' },
-  { institutionName: 'SNIL | SOA', email: 'coordinator.snil@vortex.local' },
-  { institutionName: 'IAS | SOA', email: 'coordinator.ias@vortex.local' },
-  { institutionName: 'IVS & AH | SOA', email: 'coordinator.ivs@vortex.local' },
-  { institutionName: 'IBCS | SOA', email: 'coordinator.ibcs@vortex.local' },
-  { institutionName: 'SHM | SOA', email: 'coordinator.shm@vortex.local' },
+  { institutionName: 'ITER | SOA', email: 'coordinator.iter@vortex.com' },
+  { institutionName: 'SPS | SOA', email: 'coordinator.sps@vortex.com' },
+  { institutionName: 'SNC | SOA', email: 'coordinator.snc@vortex.com' },
+  { institutionName: 'IMS & SUM | SOA', email: 'coordinator.ims@vortex.com' },
+  { institutionName: 'IDS | SOA', email: 'coordinator.ids@vortex.com' },
+  { institutionName: 'SNIL | SOA', email: 'coordinator.snil@vortex.com' },
+  { institutionName: 'IAS | SOA', email: 'coordinator.ias@vortex.com' },
+  { institutionName: 'IVS & AH | SOA', email: 'coordinator.ivs@vortex.com' },
+  { institutionName: 'IBCS | SOA', email: 'coordinator.ibcs@vortex.com' },
+  { institutionName: 'SHM | SOA', email: 'coordinator.shm@vortex.com' },
 ];
 
 const seedCoordinators = async () => {
@@ -299,14 +299,14 @@ const seedCoordinators = async () => {
 // ── registry ────────────────────────────────────────────────────────────────
 
 const REGISTRY_SAMPLES = [
-  ['2026-VRTX-100', 'Alice Vance',     'alice.vance@vortex.local',     'ITER | SOA'],
-  ['2026-VRTX-101', 'Bob Smith',       'bob.smith@vortex.local',       'SPS | SOA'],
-  ['2026-VRTX-102', 'Carla Mendes',    'carla.mendes@vortex.local',    'SNC | SOA'],
-  ['2026-VRTX-103', 'Devraj Patil',    'devraj.patil@vortex.local',    'IMS & SUM | SOA'],
-  ['2026-VRTX-104', 'Esha Nair',       'esha.nair@vortex.local',       'IDS | SOA'],
-  ['2026-VRTX-105', 'Farhan Iqbal',    'farhan.iqbal@vortex.local',    'SNIL | SOA'],
-  ['2026-VRTX-106', 'Gita Roy',        'gita.roy@vortex.local',        'IAS | SOA'],
-  ['2026-VRTX-107', 'Hari Menon',      'hari.menon@vortex.local',      'IVS & AH | SOA'],
+  ['2026-VRTX-100', 'Alice Vance',     'alice.vance@vortex.com',     'ITER | SOA'],
+  ['2026-VRTX-101', 'Bob Smith',       'bob.smith@vortex.com',       'SPS | SOA'],
+  ['2026-VRTX-102', 'Carla Mendes',    'carla.mendes@vortex.com',    'SNC | SOA'],
+  ['2026-VRTX-103', 'Devraj Patil',    'devraj.patil@vortex.com',    'IMS & SUM | SOA'],
+  ['2026-VRTX-104', 'Esha Nair',       'esha.nair@vortex.com',       'IDS | SOA'],
+  ['2026-VRTX-105', 'Farhan Iqbal',    'farhan.iqbal@vortex.com',    'SNIL | SOA'],
+  ['2026-VRTX-106', 'Gita Roy',        'gita.roy@vortex.com',        'IAS | SOA'],
+  ['2026-VRTX-107', 'Hari Menon',      'hari.menon@vortex.com',      'IVS & AH | SOA'],
 ];
 
 const seedRegistry = async () => {
