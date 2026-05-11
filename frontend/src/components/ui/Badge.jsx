@@ -1,33 +1,33 @@
 import { cn } from '../../utils/cn.js';
 
-// Small tonal pill for statuses. Tone maps to our theme colors.
-// Use `dot` to render a small status dot at the leading edge.
+// Tonal pill for statuses. Each tone is a distinct signal color.
+// Use `dot` to render a small leading status dot.
 
 const TONE = {
-  cyan: 'border-white text-white bg-white/10',
-  live: 'border-white text-white',
-  warn: 'border-white/40 text-white/60',
-  crit: 'border-white bg-white text-black',
-  dim:  'border-white/10 text-white/40',
+  cyan: 'border-accent-cyan/40 text-accent-cyan bg-accent-cyan-soft',
+  live: 'border-status-live/40 text-status-live bg-status-live/10',
+  warn: 'border-status-warn/40 text-status-warn bg-status-warn/10',
+  crit: 'border-status-crit/40 text-status-crit bg-status-crit/10',
+  dim:  'border-border-mid text-text-secondary bg-bg-surface-2',
 };
 
 const DOT = {
-  cyan: 'bg-white',
-  live: 'bg-white',
-  warn: 'bg-white/40',
-  crit: 'bg-black',
-  dim:  'bg-white/20',
+  cyan: 'bg-accent-cyan',
+  live: 'bg-status-live',
+  warn: 'bg-status-warn',
+  crit: 'bg-status-crit',
+  dim:  'bg-text-dim',
 };
 
 export const Badge = ({ tone = 'dim', dot, children, className }) => (
   <span
     className={cn(
-      'inline-flex items-center gap-1.5 rounded-none border px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-[0.2em]',
+      'inline-flex items-center gap-1.5 rounded-sm border px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-[0.18em]',
       TONE[tone],
       className,
     )}
   >
-    {dot && <span className={cn('h-1.5 w-1.5 rounded-none', DOT[tone])} />}
+    {dot && <span className={cn('h-1.5 w-1.5 rounded-full animate-pulse-soft', DOT[tone])} />}
     {children}
   </span>
 );

@@ -29,31 +29,32 @@ export const Modal = ({ open, onClose, title, children, size = 'md', footer }) =
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[900] flex items-center justify-center bg-black/80 px-4 py-8 backdrop-blur-md"
+      className="fixed inset-0 z-[900] flex items-center justify-center bg-bg-void/85 px-4 py-8 backdrop-blur-md fade-in"
       onClick={onClose}
     >
       <div
         className={cn(
-          'fade-in relative flex w-full max-h-[88vh] flex-col rounded-none border border-white/10 bg-black shadow-[0_0_50px_rgba(0,0,0,0.5)]',
+          'relative flex w-full max-h-[88vh] flex-col rounded-sm border border-border-mid bg-bg-surface-1 shadow-[0_24px_64px_-12px_rgba(0,0,0,0.8),0_0_0_1px_rgba(34,211,238,0.05)]',
           SIZES[size],
         )}
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
+        style={{ animation: 'fadeIn 220ms cubic-bezier(0.16, 1, 0.3, 1) both' }}
       >
-        <div className="flex items-center justify-between border-b border-white/5 px-6 py-4 bg-[#050505]">
-          <h3 className="font-sans text-[14px] font-black uppercase tracking-[0.2em] text-white">{title}</h3>
+        <div className="flex items-center justify-between border-b border-border-dim px-6 py-4 bg-bg-surface-2">
+          <h3 className="font-sans text-[15px] font-bold text-text-primary">{title}</h3>
           <button
             onClick={onClose}
             aria-label="Close"
-            className="rounded-none p-2 text-white/40 hover:bg-white hover:text-black transition-all"
+            className="rounded-sm p-1.5 text-text-secondary transition-all duration-160 hover:bg-bg-surface-3 hover:text-accent-cyan"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
         <div className="flex-1 overflow-y-auto px-6 py-6">{children}</div>
         {footer && (
-          <div className="flex items-center justify-end gap-3 border-t border-white/5 px-6 py-4 bg-[#050505]">
+          <div className="flex items-center justify-end gap-3 border-t border-border-dim px-6 py-4 bg-bg-surface-2">
             {footer}
           </div>
         )}

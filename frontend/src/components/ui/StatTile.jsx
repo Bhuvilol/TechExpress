@@ -1,16 +1,44 @@
 import { cn } from '../../utils/cn.js';
 
-// Big-number tile. Optional tone + trailing icon. Used on dashboards.
+// Big-number tile. The number is the hero; label is mono caps below the icon.
+// Hover lifts the surface 1 elevation tier and tints the icon.
 
-export const StatTile = ({ label, value, hint, icon: Icon, className }) => (
-  <div className={cn('relative overflow-hidden rounded-none border border-white/5 bg-[#050505] p-6 transition-all hover:border-white/20', className)}>
-    <div className="flex items-center justify-between">
-      <span className="font-mono text-[9px] font-bold uppercase tracking-[0.25em] text-white/30">{label}</span>
-      {Icon && <Icon size={14} className="text-white/10" />}
+export const StatTile = ({ label, value, hint, icon: Icon, tone = 'default', className }) => {
+  const iconTone =
+    tone === 'live' ? 'text-status-live'
+    : tone === 'warn' ? 'text-status-warn'
+    : tone === 'crit' ? 'text-status-crit'
+    : 'text-accent-cyan';
+
+  return (
+    <div
+      className={cn(
+        'group relative overflow-hidden rounded-sm border border-border-dim bg-bg-surface-1 p-6',
+        'transition-all duration-160 ease-out-expo hover:border-border-active hover:bg-bg-surface-2',
+        className,
+      )}
+    >
+      <div className="flex items-center justify-between">
+        <span className="font-mono text-[10px] font-bold uppercase tracking-[0.22em] text-text-dim">
+          {label}
+        </span>
+        {Icon && (
+          <Icon
+            size={16}
+            className={cn('transition-colors duration-160', 'text-text-mute', `group-hover:${iconTone}`)}
+          />
+        )}
+      </div>
+      <div className="mt-5 font-sans text-[44px] font-black leading-none tracking-tight text-text-primary">
+        {value}
+      </div>
+      {hint && (
+        <div className="mt-4 font-mono text-[10px] uppercase tracking-[0.18em] text-text-dim">
+          {hint}
+        </div>
+      )}
+      {/* Subtle bottom accent that appears on hover */}
+      <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-accent-cyan to-transparent opacity-0 transition-opacity duration-320 group-hover:opacity-60" />
     </div>
-    <div className="mt-4 font-sans text-[48px] font-black leading-none text-white tracking-tighter">
-      {value}
-    </div>
-    {hint && <div className="mt-4 font-mono text-[10px] uppercase tracking-wider text-white/20">{hint}</div>}
-  </div>
-);
+  );
+};
