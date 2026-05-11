@@ -26,6 +26,7 @@ import juryRoutes from './routes/jury.js';
 import leaderboardRoutes from './routes/leaderboard.js';
 import { publicRouter as broadcastPublicRouter, adminRouter as broadcastAdminRouter } from './routes/broadcast.js';
 import adminAuditRoutes from './routes/adminAudit.js';
+import adminTestingRoutes from './routes/adminTesting.js';
 import { publicRouter as taxonomyPublicRouter, adminRouter as taxonomyAdminRouter } from './routes/taxonomy.js';
 import awardsRoutes from './routes/awards.js';
 
@@ -52,8 +53,8 @@ app.use(
 
 // Generous JSON limit — registration carries a base64 photo until we move to
 // object storage. Tune downward once uploads are externalized.
-app.use(express.json({ limit: '2mb' }));
-app.use(express.urlencoded({ extended: true, limit: '2mb' }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 app.use(requestLog);
 
@@ -78,6 +79,7 @@ app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/broadcast', broadcastPublicRouter);
 app.use('/api/admin/broadcast', broadcastAdminRouter);
 app.use('/api/admin/audit-logs', adminAuditRoutes);
+app.use('/api/admin/testing', adminTestingRoutes);
 app.use('/api/taxonomy', taxonomyPublicRouter);
 app.use('/api/admin/taxonomy', taxonomyAdminRouter);
 app.use('/api/awards', awardsRoutes);

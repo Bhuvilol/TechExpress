@@ -24,6 +24,7 @@ import { AdminRoundsPage }       from './pages/admin/AdminRoundsPage.jsx';
 import { AdminTaxonomyPage }     from './pages/admin/AdminTaxonomyPage.jsx';
 import { AdminBroadcastPage }    from './pages/admin/AdminBroadcastPage.jsx';
 import { AdminAuditPage }        from './pages/admin/AdminAuditPage.jsx';
+import { AdminTestingPage }      from './pages/admin/AdminTestingPage.jsx';
 import { CoordinatorVerificationPage } from './pages/coordinator/CoordinatorVerificationPage.jsx';
 
 export const App = () => (
@@ -52,6 +53,7 @@ export const App = () => (
       <Route path="/admin/taxonomy"      element={<AdminTaxonomyPage />} />
       <Route path="/admin/broadcast"     element={<AdminBroadcastPage />} />
       <Route path="/admin/audit"         element={<AdminAuditPage />} />
+      <Route path="/admin/testing"       element={<AdminTestingPage />} />
     </Route>
 
     <Route element={<RequireAuth role="COORDINATOR"><CoordinatorShell /></RequireAuth>}>
