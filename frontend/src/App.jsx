@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { AppLayout } from './components/layout/AppLayout.jsx';
 import { AdminShell } from './components/layout/AdminShell.jsx';
+import { CoordinatorShell } from './components/layout/CoordinatorShell.jsx';
 import { RequireAuth, RedirectIfAuth } from './components/layout/RouteGuards.jsx';
 
 import { HomePage }            from './pages/public/HomePage.jsx';
@@ -17,13 +18,13 @@ import { JuryDashboardPage }   from './pages/jury/JuryDashboardPage.jsx';
 
 import { AdminOverviewPage }     from './pages/admin/AdminOverviewPage.jsx';
 import { AdminVerificationPage } from './pages/admin/AdminVerificationPage.jsx';
-import { AdminRegistryPage }     from './pages/admin/AdminRegistryPage.jsx';
 import { AdminTeamsPage }        from './pages/admin/AdminTeamsPage.jsx';
 import { AdminRulesPage }        from './pages/admin/AdminRulesPage.jsx';
 import { AdminRoundsPage }       from './pages/admin/AdminRoundsPage.jsx';
 import { AdminTaxonomyPage }     from './pages/admin/AdminTaxonomyPage.jsx';
 import { AdminBroadcastPage }    from './pages/admin/AdminBroadcastPage.jsx';
 import { AdminAuditPage }        from './pages/admin/AdminAuditPage.jsx';
+import { CoordinatorVerificationPage } from './pages/coordinator/CoordinatorVerificationPage.jsx';
 
 export const App = () => (
   <Routes>
@@ -37,7 +38,7 @@ export const App = () => (
       <Route path="/awards"             element={<AwardsPage />} />
       <Route path="/problem-statements" element={<ProblemStatementsPage />} />
 
-      <Route path="/dashboard" element={<RequireAuth><DashboardPage /></RequireAuth>} />
+      <Route path="/dashboard" element={<RequireAuth role="STUDENT"><DashboardPage /></RequireAuth>} />
       <Route path="/teams"     element={<RequireAuth role="STUDENT"><TeamFormationPage /></RequireAuth>} />
       <Route path="/jury"      element={<RequireAuth role="JURY"><JuryDashboardPage /></RequireAuth>} />
     </Route>
@@ -45,13 +46,16 @@ export const App = () => (
     <Route element={<RequireAuth role="ADMIN"><AdminShell /></RequireAuth>}>
       <Route path="/admin"               element={<AdminOverviewPage />} />
       <Route path="/admin/verification"  element={<AdminVerificationPage />} />
-      <Route path="/admin/registry"      element={<AdminRegistryPage />} />
       <Route path="/admin/teams"         element={<AdminTeamsPage />} />
       <Route path="/admin/rules"         element={<AdminRulesPage />} />
       <Route path="/admin/rounds"        element={<AdminRoundsPage />} />
       <Route path="/admin/taxonomy"      element={<AdminTaxonomyPage />} />
       <Route path="/admin/broadcast"     element={<AdminBroadcastPage />} />
       <Route path="/admin/audit"         element={<AdminAuditPage />} />
+    </Route>
+
+    <Route element={<RequireAuth role="COORDINATOR"><CoordinatorShell /></RequireAuth>}>
+      <Route path="/coordinator" element={<CoordinatorVerificationPage />} />
     </Route>
 
     <Route path="*" element={<Navigate to="/" replace />} />

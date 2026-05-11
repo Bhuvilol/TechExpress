@@ -44,6 +44,7 @@ export const listAvailableMembers = async (req, res) => {
   const users = await teamService.listAvailableMembers({
     actorId: req.user.id,
     search: req.query.search,
+    matchActorDomains: req.query.matchActorDomains,
   });
   res.json({ count: users.length, users });
 };

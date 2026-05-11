@@ -37,14 +37,30 @@ const EXPLORE_MEMBER_FIELDS = {
   fullName: true,
   email: true,
   registrationNo: true,
+  createdAt: true,
   phone: true,
   discordId: true,
   bio: true,
+  preferredDomains: true,
   linkedinUrl: true,
   githubUrl: true,
+  portfolioUrl: true,
+  resumeDriveLink: true,
+  researchPublicationUrl: true,
+  certificationsAchievements: true,
+  projectInitiative: true,
+  participationExperience: true,
+  achievements: true,
+  hackathonExperience: true,
   gender: true,
   isDomainExpert: true,
   track: true,
+  degree: true,
+  yearSemester: true,
+  contributionAreas: true,
+  preferredTeamRole: true,
+  technicalSkills: true,
+  nonTechnicalSkills: true,
   verificationStatus: true,
   institution: { select: { id: true, name: true } },
   domain: { select: { id: true, name: true } },
@@ -61,6 +77,23 @@ const EXPLORE_MEMBER_FIELDS = {
       },
     },
   },
+};
+
+const uniqueIds = (values) => [...new Set(values.filter(Boolean))];
+
+const buildActorDomainSet = (actor) =>
+  uniqueIds([actor?.domainId, ...(actor?.preferredDomains ?? [])]);
+
+const scoreMemberMatch = ({ actorDomainIds, actorInstitutionId, member }) => {
+  const sharedPreferredDomainIds = (member.preferredDomains ?? []).filter((id) => actorDomainIds.includes(id));
+  const primaryDomainMatched = member.domain?.id ? actorDomainIds.includes(member.domain.id) : false;
+  const score = [
+    primaryDomainMatched ? 3 : 0,
+    sharedPreferredDomainIds.length * 2,
+    actorInstitutionId && member.institution?.id === actorInstitutionId ? 1 : 0,
+  ].reduce((sum, part) => sum + part, 0);
+
+  return { score, sharedPreferredDomainIds, primaryDomainMatched };
 };
 
 export const teamService = {
@@ -187,22 +220,81 @@ export const teamService = {
     }));
   },
 
-  listAvailableMembers({ actorId, search } = {}) {
-    return prisma.user.findMany({
-      where: {
-        role: 'STUDENT',
-        ...(actorId && { NOT: { id: actorId } }),
-        ...(search && {
-          OR: [
-            { fullName: { contains: search, mode: 'insensitive' } },
-            { email: { contains: search, mode: 'insensitive' } },
-            { registrationNo: { contains: search, mode: 'insensitive' } },
-          ],
-        }),
-      },
+  async listAvailableMembers({ actorId, search, matchActorDomains = false } = {}) {
+    const actor = actorId
+      ? await prisma.user.findUnique({
+          where: { id: actorId },
+          select: {
+            id: true,
+            institutionId: true,
+            domainId: true,
+            preferredDomains: true,
+          },
+        })
+      : null;
+
+    const actorDomainIds = buildActorDomainSet(actor);
+    const filters = [
+      { role: 'STUDENT' },
+      ...(actorId ? [{ NOT: { id: actorId } }] : []),
+      ...(search ? [{
+        OR: [
+          { fullName: { contains: search, mode: 'insensitive' } },
+          { email: { contains: search, mode: 'insensitive' } },
+          { registrationNo: { contains: search, mode: 'insensitive' } },
+        ],
+      }] : []),
+      ...(matchActorDomains && actorDomainIds.length ? [{
+        OR: [
+          { domainId: { in: actorDomainIds } },
+          { preferredDomains: { hasSome: actorDomainIds } },
+        ],
+      }] : []),
+    ];
+
+    const users = await prisma.user.findMany({
+      where: { AND: filters },
       select: EXPLORE_MEMBER_FIELDS,
       orderBy: { createdAt: 'desc' },
     });
+
+    const allDomainIds = uniqueIds([
+      ...users.flatMap((member) => member.preferredDomains ?? []),
+      ...users.map((member) => member.domain?.id),
+      ...actorDomainIds,
+    ]);
+    const domains = allDomainIds.length
+      ? await prisma.domain.findMany({
+          where: { id: { in: allDomainIds } },
+          select: { id: true, name: true },
+        })
+      : [];
+    const domainMap = new Map(domains.map((domain) => [domain.id, domain]));
+
+    return users
+      .map((member) => {
+        const { score, sharedPreferredDomainIds, primaryDomainMatched } = scoreMemberMatch({
+          actorDomainIds,
+          actorInstitutionId: actor?.institutionId,
+          member,
+        });
+        return {
+          ...member,
+          preferredDomainDetails: (member.preferredDomains ?? [])
+            .map((domainId) => domainMap.get(domainId))
+            .filter(Boolean),
+          sharedPreferredDomains: sharedPreferredDomainIds
+            .map((domainId) => domainMap.get(domainId))
+            .filter(Boolean),
+          primaryDomainMatched,
+          matchScore: score,
+        };
+      })
+      .sort((a, b) => (
+        b.matchScore - a.matchScore
+        || b.sharedPreferredDomains.length - a.sharedPreferredDomains.length
+        || new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      ));
   },
 
   /**

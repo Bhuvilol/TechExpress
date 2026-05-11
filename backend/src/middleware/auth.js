@@ -2,12 +2,12 @@ import jwt from 'jsonwebtoken';
 import { env } from '../config/env.js';
 import { Unauthorized, Forbidden } from '../utils/errors.js';
 
-// JWT payload shape: { sub: userId, role, email }
+// JWT payload shape: { sub: userId, role, email, institutionId? }
 // `sub` is standard; we mirror it as `id` on req.user for ergonomic access.
 
 export const signAccessToken = (user) =>
   jwt.sign(
-    { sub: user.id, role: user.role, email: user.email },
+    { sub: user.id, role: user.role, email: user.email, institutionId: user.institution?.id ?? null },
     env.ACCESS_TOKEN_SECRET,
     { expiresIn: env.ACCESS_TOKEN_EXPIRY },
   );
@@ -34,6 +34,7 @@ const attachUser = (req, payload) => {
     id: payload.sub,
     role: payload.role,
     email: payload.email,
+    institutionId: payload.institutionId ?? null,
   };
 };
 

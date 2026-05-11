@@ -20,6 +20,7 @@ const schema = z.object({
 
   ADMIN_SEED_EMAIL: z.string().email().optional(),
   ADMIN_SEED_PASSWORD: z.string().min(8).optional(),
+  COORDINATOR_SEED_PASSWORD: z.string().min(8).optional(),
 });
 
 const parsed = schema.safeParse(process.env);

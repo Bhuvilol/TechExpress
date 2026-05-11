@@ -3,10 +3,11 @@ import { ArrowRight, Trophy, Users, FileText, Gavel, Activity, Shield } from 'lu
 import { ScrambleText } from '../../components/ui/ScrambleText.jsx';
 import { NeonBorderCard } from '../../components/ui/NeonBorderCard.jsx';
 import { useAuth } from '../../contexts/AuthContext.jsx';
+import { homePathForRole } from '../../utils/authHome.js';
 
 const TILES = [
   { to: '/register',         label: 'Registration',     desc: 'Submit your application — verification by organizers.', icon: Users,    accent: 'text-white' },
-  { to: '/login',            label: 'Sign In',          desc: 'Returning participants, juries and organizers.',         icon: Shield,   accent: 'text-white' },
+  { to: '/login',            label: 'Sign In',          desc: 'Returning participants, juries, coordinators and organizers.', icon: Shield, accent: 'text-white' },
   { to: '/problem-statements', label: 'Problem Statements', desc: 'The challenges available across every domain.',     icon: FileText, accent: 'text-white' },
   { to: '/leaderboard',      label: 'Leaderboard',      desc: 'Live ranking once scores are released.',                 icon: Trophy,   accent: 'text-white' },
   { to: '/awards',           label: 'Awards',           desc: 'Grand prize, domain champions and special awards.',      icon: Gavel,    accent: 'text-white' },
@@ -33,7 +34,7 @@ export const HomePage = () => {
       <div className="mt-12 flex flex-wrap items-center justify-center gap-4">
         {isAuth ? (
           <Link
-            to={user.role === 'ADMIN' ? '/admin' : user.role === 'JURY' ? '/jury' : '/dashboard'}
+            to={homePathForRole(user.role)}
             className="glow-button flex items-center gap-3 px-8"
           >
             <span>Continue to dashboard</span>
@@ -84,4 +85,3 @@ export const HomePage = () => {
     </section>
   );
 };
-

@@ -4,14 +4,24 @@ import { cn } from '../../utils/cn.js';
 // .input-glass / .select-glass / textarea to keep layouts consistent.
 
 export const FormField = ({ label, hint, error, required, children, className }) => (
-  <label className={cn('flex flex-col gap-1.5', className)}>
-    <span className="flex items-center gap-1 font-mono text-[11px] uppercase tracking-[0.15em] text-text-secondary">
-      {label}
-      {required && <span className="text-status-crit">*</span>}
+  <label className={cn('flex flex-col gap-2.5', className)}>
+    <span className="flex min-h-[18px] items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.22em] text-text-secondary">
+      <span>{label}</span>
+      {required && (
+        <>
+          <span
+            aria-hidden="true"
+            className="ml-0.5 text-[13px] font-extrabold leading-none"
+            style={{ color: '#ef4444' }}
+          >
+            *
+          </span>
+        </>
+      )}
     </span>
     {children}
     {(error || hint) && (
-      <span className={cn('font-mono text-[11px]', error ? 'text-status-crit' : 'text-text-dim')}>
+      <span className={cn('px-0.5 font-mono text-[11px] leading-relaxed', error ? 'text-status-crit' : 'text-text-dim')}>
         {error ?? hint}
       </span>
     )}

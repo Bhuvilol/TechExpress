@@ -15,6 +15,7 @@ enum Role {
   STUDENT
   ADMIN
   JURY
+  COORDINATOR
 }
 
 enum VerificationStatus {
@@ -111,7 +112,17 @@ model User {
   institution        Institution?       @relation(fields: [institutionId], references: [id])
   domainId           String?
   domain             Domain?            @relation(fields: [domainId], references: [id])
+  preferredDomains   String[]           @default([])
   track              String?
+  degree             String?
+  yearSemester       String?
+  contributionAreas  String[]           @default([])
+  preferredTeamRole  String?
+  technicalSkills    String?
+  nonTechnicalSkills String?
+  lookingFor         String[]           @default([])
+  availability       String?
+  collaborationPreference String?
 
   phone              String?
   discordId          String?
@@ -119,7 +130,15 @@ model User {
   profilePicUrl      String?
   linkedinUrl        String?
   githubUrl          String?
+  portfolioUrl       String?
+  resumeDriveLink    String?
+  researchPublicationUrl String?
   bio                String?            @db.VarChar(1000)
+  certificationsAchievements String?    @db.Text
+  projectInitiative  String?            @db.Text
+  participationExperience String?       @db.Text
+  achievements       String?            @db.Text
+  hackathonExperience String?           @db.Text
   isDomainExpert     Boolean            @default(false)
 
   passwordHash       String?

@@ -43,6 +43,7 @@ export const login = async (req, res) => {
       role: user.role,
       email: user.email,
       fullName: user.fullName,
+      institution: user.institution ?? null,
     },
   });
 };

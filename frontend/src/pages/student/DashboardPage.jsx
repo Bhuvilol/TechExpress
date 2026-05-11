@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   User, Users, Mail, ArrowRight, Inbox, Megaphone, ExternalLink,
   Github, Linkedin, IdCard, GraduationCap, Layers, Search, UserPlus, Send,
+  Briefcase, FileText, Award, BookOpen, Globe,
 } from 'lucide-react';
 import { api } from '../../lib/api.js';
 import { useApi } from '../../hooks/useApi.js';
@@ -19,8 +20,9 @@ import { Spinner } from '../../components/ui/Spinner.jsx';
 import { Modal } from '../../components/ui/Modal.jsx';
 import { formatRelative, titleCase } from '../../utils/format.js';
 
-const ROLE_TONE = { ADMIN: 'crit', JURY: 'cyan', STUDENT: 'live' };
+const ROLE_TONE = { ADMIN: 'crit', JURY: 'cyan', COORDINATOR: 'warn', STUDENT: 'live' };
 const EXPLORE_CARD_CLASS = 'glass-card flat min-h-[188px] rounded-none px-5 py-6 transition duration-200 ease-out hover:border-white hover:bg-white/[0.04]';
+const joinList = (values) => values?.length ? values.join(', ') : '-';
 
 const ProfileTab = ({ user }) => (
   <div className="grid gap-6 md:grid-cols-3">
@@ -34,43 +36,34 @@ const ProfileTab = ({ user }) => (
         <Field icon={Mail} label="Email" value={user.email} />
         <Field icon={IdCard} label="Registration #" value={user.registrationNo ?? '-'} />
         <Field icon={GraduationCap} label="Institution" value={user.institution?.name ?? '-'} />
-        <Field icon={Layers} label="Domain" value={user.domain?.name ?? '-'} />
-        <Field icon={Layers} label="Track" value={user.track ?? '-'} />
+        <Field icon={Layers} label="Preferred Domain" value={user.domain?.name ?? '-'} />
+        <Field icon={GraduationCap} label="Degree" value={user.degree ?? '-'} />
+        <Field icon={BookOpen} label="Year / Semester" value={user.yearSemester ?? '-'} />
         <Field icon={Mail} label="Phone" value={user.phone ?? '-'} />
-        <Field icon={Mail} label="Discord" value={user.discordId ?? '-'} />
+        <Field icon={Briefcase} label="Preferred Team Role" value={user.preferredTeamRole ?? '-'} />
+        <Field icon={Award} label="Contribution Areas" value={joinList(user.contributionAreas)} />
       </dl>
 
-      {user.bio && (
+      <ProfileCopySection title="Bio" value={user.bio} />
+      {user.preferredDomainDetails?.length ? (
         <div className="mt-8 border-t border-white/5 pt-6">
-          <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-white/30 mb-3">Bio / Manifesto</div>
-          <p className="font-mono text-[13px] leading-relaxed text-white/60">{user.bio}</p>
+          <div className="mb-3 font-mono text-[10px] uppercase tracking-[0.3em] text-white/30">Preferred domains</div>
+          <div className="flex flex-wrap gap-1.5">
+            {user.preferredDomainDetails.map((domain) => (
+              <Badge key={domain.id} tone="dim">{domain.name}</Badge>
+            ))}
+          </div>
         </div>
-      )}
+      ) : null}
+      <ProfileCopySection title="Technical Skills" value={user.technicalSkills} />
+      <ProfileCopySection title="Non-Technical Skills" value={user.nonTechnicalSkills} />
+      <ProfileCopySection title="Achievements" value={user.achievements} />
+      <ProfileCopySection title="Hackathon Experience" value={user.hackathonExperience} />
+      <ProfileCopySection title="Certifications / Achievements" value={user.certificationsAchievements} />
+      <ProfileCopySection title="Project / Startup / Initiative" value={user.projectInitiative} />
+      <ProfileCopySection title="Participation Experience" value={user.participationExperience} />
 
-      {(user.linkedinUrl || user.githubUrl) && (
-        <div className="mt-5 flex items-center gap-3 border-t border-white/10 pt-4">
-          {user.linkedinUrl && (
-            <a
-              href={user.linkedinUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="ghost-button inline-flex items-center gap-2"
-            >
-              <Linkedin size={12} /> LinkedIn
-            </a>
-          )}
-          {user.githubUrl && (
-            <a
-              href={user.githubUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="ghost-button inline-flex items-center gap-2"
-            >
-              <Github size={12} /> GitHub
-            </a>
-          )}
-        </div>
-      )}
+      <ProfileLinks user={user} />
     </section>
 
     <aside className="glass-card flat space-y-6">
@@ -108,6 +101,44 @@ const Field = ({ icon: Icon, label, value }) => (
     <div className="font-mono text-[13px] font-bold text-white/80">{value}</div>
   </div>
 );
+
+const ProfileCopySection = ({ title, value }) => {
+  if (!value) return null;
+  return (
+    <div className="mt-8 border-t border-white/5 pt-6">
+      <div className="mb-3 font-mono text-[10px] uppercase tracking-[0.3em] text-white/30">{title}</div>
+      <p className="font-mono text-[13px] leading-relaxed text-white/60">{value}</p>
+    </div>
+  );
+};
+
+const ProfileLinks = ({ user }) => {
+  const links = [
+    { href: user.linkedinUrl, label: 'LinkedIn', icon: Linkedin },
+    { href: user.githubUrl, label: 'GitHub', icon: Github },
+    { href: user.portfolioUrl, label: 'Portfolio', icon: Globe },
+    { href: user.resumeDriveLink, label: 'Resume', icon: FileText },
+    { href: user.researchPublicationUrl, label: 'Publication', icon: BookOpen },
+  ].filter((item) => item.href);
+
+  if (!links.length) return null;
+
+  return (
+    <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-white/10 pt-4">
+      {links.map(({ href, label, icon: Icon }) => (
+        <a
+          key={label}
+          href={href}
+          target="_blank"
+          rel="noreferrer"
+          className="ghost-button inline-flex items-center gap-2"
+        >
+          <Icon size={12} /> {label}
+        </a>
+      ))}
+    </div>
+  );
+};
 
 const InboxTab = () => {
   const toast = useToast();
@@ -257,10 +288,14 @@ const MemberDetailsModal = ({ member, action, busy, onInvite, onClose }) => {
 
         <div className="grid gap-4 sm:grid-cols-2">
           <Field icon={IdCard} label="Registration #" value={member.registrationNo ?? '-'} />
-          <Field icon={Layers} label="Track" value={member.track ?? '-'} />
+          <Field icon={Layers} label="Preferred Domain" value={member.domain?.name ?? '-'} />
           <Field icon={GraduationCap} label="Institution" value={member.institution?.name ?? '-'} />
+          <Field icon={GraduationCap} label="Degree" value={member.degree ?? '-'} />
           <Field icon={Mail} label="Phone" value={member.phone ?? '-'} />
-          <Field icon={Mail} label="Discord" value={member.discordId ?? '-'} />
+          <Field icon={BookOpen} label="Year / Semester" value={member.yearSemester ?? '-'} />
+          <Field icon={Briefcase} label="Preferred Team Role" value={member.preferredTeamRole ?? '-'} />
+          <Field icon={Award} label="Contribution Areas" value={joinList(member.contributionAreas)} />
+          <Field icon={Layers} label="Match Score" value={String(member.matchScore ?? 0)} />
           <Field
             icon={Users}
             label="Team"
@@ -268,37 +303,29 @@ const MemberDetailsModal = ({ member, action, busy, onInvite, onClose }) => {
           />
         </div>
 
-        {member.bio && (
+        {member.preferredDomainDetails?.length ? (
           <div className="border-t border-white/10 pt-4">
-            <div className="section-label mb-2">Bio</div>
-            <p className="font-mono text-[12px] leading-relaxed text-text-secondary">{member.bio}</p>
+            <div className="section-label mb-2">Preferred domains</div>
+            <div className="flex flex-wrap gap-1.5">
+              {member.preferredDomainDetails.map((domain) => (
+                <Badge key={domain.id} tone={member.sharedPreferredDomains?.some((shared) => shared.id === domain.id) ? 'live' : 'dim'}>
+                  {domain.name}
+                </Badge>
+              ))}
+            </div>
           </div>
-        )}
+        ) : null}
 
-        {(member.linkedinUrl || member.githubUrl) && (
-          <div className="flex flex-wrap gap-2 border-t border-white/10 pt-4">
-            {member.linkedinUrl && (
-              <a
-                href={member.linkedinUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="ghost-button inline-flex items-center gap-2"
-              >
-                <Linkedin size={12} /> LinkedIn
-              </a>
-            )}
-            {member.githubUrl && (
-              <a
-                href={member.githubUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="ghost-button inline-flex items-center gap-2"
-              >
-                <Github size={12} /> GitHub
-              </a>
-            )}
-          </div>
-        )}
+        <ProfileCopySection title="Bio" value={member.bio} />
+        <ProfileCopySection title="Technical Skills" value={member.technicalSkills} />
+        <ProfileCopySection title="Non-Technical Skills" value={member.nonTechnicalSkills} />
+        <ProfileCopySection title="Achievements" value={member.achievements} />
+        <ProfileCopySection title="Hackathon Experience" value={member.hackathonExperience} />
+        <ProfileCopySection title="Certifications / Achievements" value={member.certificationsAchievements} />
+        <ProfileCopySection title="Project / Startup / Initiative" value={member.projectInitiative} />
+        <ProfileCopySection title="Participation Experience" value={member.participationExperience} />
+
+        <ProfileLinks user={member} />
 
         <div className="border-t border-border-dim pt-4 font-mono text-[11px] text-text-dim">
           {action.reason}
@@ -402,7 +429,7 @@ const ExploreTab = ({ user, myTeam }) => {
   const [inviteingId, setInviteingId] = useState('');
   const [requestingTeamId, setRequestingTeamId] = useState('');
 
-  const members = useApi(() => api.get('/api/teams/explore/members'), []);
+  const members = useApi(() => api.get('/api/teams/explore/members', { query: { matchActorDomains: true } }), []);
   const teams = useApi(() => api.get('/api/teams'), []);
   const joinable = useApi(() => api.get('/api/teams/joinable'), []);
   const outgoingRequests = useApi(() => api.get('/api/join-requests/me'), []);
@@ -441,6 +468,7 @@ const ExploreTab = ({ user, myTeam }) => {
         member.registrationNo,
         member.institution?.name,
         member.domain?.name,
+        ...(member.preferredDomainDetails?.map((domain) => domain.name) ?? []),
       ]
         .filter(Boolean)
         .some((value) => value.toLowerCase().includes(needle)),
@@ -542,12 +570,12 @@ const ExploreTab = ({ user, myTeam }) => {
     <div className="grid gap-8 xl:grid-cols-2 xl:items-start">
       <section className="space-y-3 min-w-0">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h2 className="section-label">Available members</h2>
-            <p className="font-mono text-[12px] text-text-secondary">
-              Every registered student appears here, even if they already belong to a team.
-            </p>
-          </div>
+        <div>
+          <h2 className="section-label">Available members</h2>
+          <p className="font-mono text-[12px] text-text-secondary">
+            Ranked by preferred-domain overlap first, then by recent registrations.
+          </p>
+        </div>
           <div className="relative w-full max-w-xs">
             <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/20" />
             <input
@@ -582,6 +610,7 @@ const ExploreTab = ({ user, myTeam }) => {
                     </div>
                     <div className="flex flex-wrap justify-end gap-1.5">
                       <Badge tone="cyan">{member.domain?.name ?? 'No domain'}</Badge>
+                      {member.sharedPreferredDomains?.length ? <Badge tone="live">Shared: {member.sharedPreferredDomains.length}</Badge> : null}
                       {member.membership?.team && <Badge tone="dim">In team</Badge>}
                       {member.verificationStatus !== 'VERIFIED' && <Badge tone="warn">{titleCase(member.verificationStatus)}</Badge>}
                     </div>
@@ -599,6 +628,14 @@ const ExploreTab = ({ user, myTeam }) => {
                     </>
                   )}
                 </div>
+
+                {member.sharedPreferredDomains?.length ? (
+                  <div className="flex flex-wrap gap-1.5">
+                    {member.sharedPreferredDomains.map((domain) => (
+                      <Badge key={domain.id} tone="live">{domain.name}</Badge>
+                    ))}
+                  </div>
+                ) : null}
 
                 <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-1">
                   <div>

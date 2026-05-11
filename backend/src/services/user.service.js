@@ -15,11 +15,26 @@ const PUBLIC_USER_FIELDS = {
   discordId: true,
   gender: true,
   profilePicUrl: true,
+  preferredDomains: true,
   linkedinUrl: true,
   githubUrl: true,
+  portfolioUrl: true,
+  resumeDriveLink: true,
+  researchPublicationUrl: true,
   bio: true,
+  certificationsAchievements: true,
+  projectInitiative: true,
+  participationExperience: true,
+  achievements: true,
+  hackathonExperience: true,
   isDomainExpert: true,
   track: true,
+  degree: true,
+  yearSemester: true,
+  contributionAreas: true,
+  preferredTeamRole: true,
+  technicalSkills: true,
+  nonTechnicalSkills: true,
   verificationStatus: true,
   passwordIssuedAt: true,
   lastLoginAt: true,
@@ -27,6 +42,30 @@ const PUBLIC_USER_FIELDS = {
   updatedAt: true,
   institution: { select: { id: true, name: true } },
   domain: { select: { id: true, name: true } },
+};
+
+const attachPreferredDomainDetails = async (user) => {
+  if (!user) return user;
+  const preferredDomainIds = [...new Set((user.preferredDomains ?? []).filter(Boolean))];
+  if (!preferredDomainIds.length) {
+    return { ...user, preferredDomainDetails: [] };
+  }
+  const domains = await prisma.domain.findMany({
+    where: { id: { in: preferredDomainIds } },
+    select: { id: true, name: true },
+  });
+  const domainMap = new Map(domains.map((domain) => [domain.id, domain]));
+  return {
+    ...user,
+    preferredDomainDetails: preferredDomainIds.map((id) => domainMap.get(id)).filter(Boolean),
+  };
+};
+
+const assertInstitutionScope = (user, institutionId) => {
+  if (!institutionId) return;
+  if (!user.institutionId || user.institutionId !== institutionId) {
+    throw Forbidden('Cannot act on a student from another institution');
+  }
 };
 
 export const userService = {
@@ -63,13 +102,14 @@ export const userService = {
   // Approve a PENDING student: generate a 6-digit code, hash it, store it.
   // Returns { user, plaintextPassword } so the caller can email the password.
   // The plaintext NEVER persists past this function's return value.
-  async approveStudent(userId) {
+  async approveStudent(userId, { institutionId } = {}) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true, role: true, verificationStatus: true, fullName: true, email: true },
+      select: { id: true, role: true, verificationStatus: true, fullName: true, email: true, institutionId: true },
     });
     if (!user) throw NotFound('User not found');
     if (user.role !== 'STUDENT') throw Forbidden('Only student accounts can be verified');
+    assertInstitutionScope(user, institutionId);
     if (user.verificationStatus === 'VERIFIED') {
       throw Conflict('User is already verified');
     }
@@ -93,13 +133,14 @@ export const userService = {
     return { user: updated, plaintextPassword };
   },
 
-  async rejectStudent(userId) {
+  async rejectStudent(userId, { institutionId } = {}) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true, role: true, verificationStatus: true, fullName: true, email: true },
+      select: { id: true, role: true, verificationStatus: true, fullName: true, email: true, institutionId: true },
     });
     if (!user) throw NotFound('User not found');
     if (user.role !== 'STUDENT') throw Forbidden('Only student accounts can be rejected');
+    assertInstitutionScope(user, institutionId);
     if (user.verificationStatus === 'VERIFIED') {
       throw Conflict('Cannot reject an already-verified user — use revoke instead');
     }
@@ -195,15 +236,17 @@ export const userService = {
         fullName: true,
         passwordHash: true,
         verificationStatus: true,
+        institution: { select: { id: true, name: true } },
       },
     });
   },
 
-  findById(userId) {
-    return prisma.user.findUnique({
+  async findById(userId) {
+    const user = await prisma.user.findUnique({
       where: { id: userId },
       select: PUBLIC_USER_FIELDS,
     });
+    return attachPreferredDomainDetails(user);
   },
 
   findByRegistrationNo(registrationNo) {
@@ -221,11 +264,12 @@ export const userService = {
     });
   },
 
-  listPending({ search } = {}) {
+  listPending({ search, institutionId } = {}) {
     return prisma.user.findMany({
       where: {
         role: 'STUDENT',
         verificationStatus: 'PENDING',
+        ...(institutionId && { institutionId }),
         ...(search && {
           OR: [
             { fullName: { contains: search, mode: 'insensitive' } },
@@ -239,11 +283,12 @@ export const userService = {
     });
   },
 
-  listStudents({ status, search } = {}) {
+  listStudents({ status, search, institutionId } = {}) {
     return prisma.user.findMany({
       where: {
         role: 'STUDENT',
         ...(status && { verificationStatus: status }),
+        ...(institutionId && { institutionId }),
         ...(search && {
           OR: [
             { fullName: { contains: search, mode: 'insensitive' } },

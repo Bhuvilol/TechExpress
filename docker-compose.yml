@@ -33,6 +33,7 @@ services:
       ADMIN_SEED_EMAIL: admin@vortex.local
       ADMIN_SEED_PASSWORD: admin1234
       JURY_SEED_PASSWORD: jury1234
+      COORDINATOR_SEED_PASSWORD: coord1234
     ports:
       - "3001:3001"
     depends_on:

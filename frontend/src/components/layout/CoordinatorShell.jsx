@@ -1,25 +1,16 @@
 import { useState } from 'react';
 import { NavLink, Outlet, Link } from 'react-router-dom';
 import {
-  Infinity, Users, ShieldCheck, Settings, Lock, Megaphone,
-  History, Layers, ListChecks, LogOut, Menu, X
+  Infinity, ShieldCheck, LogOut, Menu,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext.jsx';
 import { cn } from '../../utils/cn.js';
 
 const NAV = [
-  { to: '/admin',                end: true, label: 'Overview',     icon: Layers   },
-  { to: '/admin/verification',              label: 'Verification', icon: ShieldCheck },
-  { to: '/admin/teams',                     label: 'Teams',        icon: Users     },
-  { to: '/admin/rules',                     label: 'Rules',        icon: Settings  },
-  { to: '/admin/rounds',                    label: 'Rounds',       icon: Lock      },
-  { to: '/admin/taxonomy',                  label: 'Taxonomy',     icon: ListChecks },
-  { to: '/admin/broadcast',                 label: 'Broadcast',    icon: Megaphone },
-  { to: '/admin/audit',                     label: 'Audit Log',    icon: History   },
+  { to: '/coordinator', end: true, label: 'Student Review', icon: ShieldCheck },
 ];
 
-
-export const AdminShell = () => {
+export const CoordinatorShell = () => {
   const { user, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -27,28 +18,26 @@ export const AdminShell = () => {
 
   return (
     <div className="flex min-h-screen bg-black">
-      {/* Mobile Backdrop */}
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-40 bg-black/80 backdrop-blur-sm md:hidden"
           onClick={close}
         />
       )}
 
-      {/* Sidebar */}
       <aside className={cn(
-        "fixed inset-y-0 left-0 z-50 flex w-[260px] flex-col border-r border-white/5 bg-[#050505] transition-transform duration-300 md:translate-x-0",
-        isOpen ? "translate-x-0" : "-translate-x-full"
+        'fixed inset-y-0 left-0 z-50 flex w-[260px] flex-col border-r border-white/5 bg-[#050505] transition-transform duration-300 md:translate-x-0',
+        isOpen ? 'translate-x-0' : '-translate-x-full',
       )}>
         <Link to="/" onClick={close} className="flex items-center gap-3 border-b border-white/5 px-6 py-5 transition-opacity hover:opacity-80">
           <Infinity size={24} className="text-white" strokeWidth={2.5} />
-          <span className="font-sans text-[13px] font-black tracking-[0.25em] text-white">
-            VORTEX <span className="text-white/40">·</span> ADMIN
+          <span className="font-sans text-[12px] font-black tracking-[0.22em] text-white">
+            VORTEX <span className="text-white/40">·</span> COORDINATOR
           </span>
         </Link>
 
         <nav className="flex-1 overflow-y-auto py-4">
-          <div className="px-6 mb-4 text-[10px] font-mono uppercase tracking-[0.3em] text-white/30">System Control</div>
+          <div className="mb-4 px-6 text-[10px] font-mono uppercase tracking-[0.3em] text-white/30">Campus Review</div>
           {NAV.map(({ to, end, label, icon: Icon }) => (
             <NavLink
               key={to}
@@ -68,12 +57,15 @@ export const AdminShell = () => {
         </nav>
 
         <div className="border-t border-white/5 px-6 py-6">
-          <div className="mb-4 truncate font-mono text-[10px] uppercase tracking-wider text-white/30">
-            Authenticated: <span className="text-white/60">{user?.email?.split('@')[0]}</span>
+          <div className="mb-2 truncate font-mono text-[10px] uppercase tracking-wider text-white/30">
+            {user?.institution?.name ?? 'Campus'}
+          </div>
+          <div className="mb-4 truncate font-mono text-[10px] uppercase tracking-wider text-white/20">
+            {user?.email}
           </div>
           <button
             onClick={logout}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-none border border-white/10 px-3 py-3 font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-white/60 hover:bg-white hover:text-black transition-all"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-none border border-white/10 px-3 py-3 font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-white/60 transition-all hover:bg-white hover:text-black"
           >
             <LogOut size={12} />
             Sign out
@@ -82,16 +74,12 @@ export const AdminShell = () => {
       </aside>
 
       <div className="flex flex-1 flex-col md:ml-[260px]">
-        {/* Mobile Header */}
         <header className="flex h-16 items-center justify-between border-b border-white/5 bg-black/90 px-6 backdrop-blur-md md:hidden">
           <div className="flex items-center gap-2">
             <Infinity size={22} className="text-white" />
-            <span className="font-sans text-[12px] font-black tracking-[0.2em] text-white uppercase">Admin</span>
+            <span className="font-sans text-[12px] font-black uppercase tracking-[0.2em] text-white">Coordinator</span>
           </div>
-          <button 
-            onClick={() => setIsOpen(true)}
-            className="text-white/60 hover:text-white"
-          >
+          <button onClick={() => setIsOpen(true)} className="text-white/60 hover:text-white">
             <Menu size={20} />
           </button>
         </header>

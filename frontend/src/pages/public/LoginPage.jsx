@@ -6,6 +6,7 @@ import { useToast } from '../../contexts/ToastContext.jsx';
 import { FormField } from '../../components/ui/FormField.jsx';
 import { Spinner } from '../../components/ui/Spinner.jsx';
 import { ScrambleText } from '../../components/ui/ScrambleText.jsx';
+import { homePathForRole } from '../../utils/authHome.js';
 
 export const LoginPage = () => {
   const { login, bypassLogin } = useAuth();
@@ -24,13 +25,12 @@ export const LoginPage = () => {
     try {
       const u = await login(email.trim(), password);
       toast.success(`Welcome back, ${u.fullName.split(' ')[0]}.`);
-      const dest = loc.state?.from
-        ?? (u.role === 'ADMIN' ? '/admin' : u.role === 'JURY' ? '/jury' : '/dashboard');
+      const dest = loc.state?.from ?? homePathForRole(u.role);
       nav(dest, { replace: true });
     } catch (apiErr) {
       setErr(apiErr.message);
       if (apiErr.code === 'ACCOUNT_PENDING')
-        setErr('Your account is awaiting organizer verification.');
+        setErr('Your account is awaiting campus or organizer verification.');
       if (apiErr.code === 'ACCOUNT_REJECTED')
         setErr('Your registration was not approved.');
       if (apiErr.code === 'ACCOUNT_REVOKED')
@@ -129,4 +129,3 @@ export const LoginPage = () => {
     </section>
   );
 };
-

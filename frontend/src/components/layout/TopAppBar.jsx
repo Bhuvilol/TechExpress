@@ -3,6 +3,7 @@ import { NavLink, Link, useLocation } from 'react-router-dom';
 import { Infinity, LogOut, Menu, X } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext.jsx';
 import { cn } from '../../utils/cn.js';
+import { homePathForRole } from '../../utils/authHome.js';
 
 const NavItem = ({ to, children, tone, onClick }) => (
   <NavLink
@@ -34,7 +35,7 @@ export const TopAppBar = () => {
     return () => { document.body.style.overflow = 'unset'; };
   }, [isOpen]);
 
-  if (pathname.startsWith('/admin')) return null;
+  if (pathname.startsWith('/admin') || pathname.startsWith('/coordinator')) return null;
 
   const closeMenu = () => setIsOpen(false);
 
@@ -59,10 +60,11 @@ export const TopAppBar = () => {
 
           {isAuth ? (
             <div className="flex items-center gap-6 ml-6 border-l border-white/10 pl-6">
-              <NavItem to="/dashboard">Dashboard</NavItem>
+              <NavItem to={homePathForRole(user.role)}>Dashboard</NavItem>
               {user.role === 'STUDENT'  && <NavItem to="/teams">Teams</NavItem>}
               {user.role === 'JURY'     && <NavItem to="/jury">Evaluations</NavItem>}
               {user.role === 'ADMIN'    && <NavItem to="/admin">Admin</NavItem>}
+              {user.role === 'COORDINATOR' && <NavItem to="/coordinator">Coordinator</NavItem>}
               <button
                 onClick={logout}
                 className="ml-2 inline-flex items-center gap-2 rounded-none border border-white/20 px-4 py-2 font-mono text-[10px] font-black uppercase tracking-[0.1em] text-white/60 hover:border-white hover:bg-white hover:text-black transition-all"
@@ -108,10 +110,11 @@ export const TopAppBar = () => {
 
           {isAuth ? (
             <div className="flex flex-col gap-4">
-              <NavItem to="/dashboard" onClick={closeMenu}>Dashboard</NavItem>
+              <NavItem to={homePathForRole(user.role)} onClick={closeMenu}>Dashboard</NavItem>
               {user.role === 'STUDENT'  && <NavItem to="/teams" onClick={closeMenu}>Teams</NavItem>}
               {user.role === 'JURY'     && <NavItem to="/jury" onClick={closeMenu}>Evaluations</NavItem>}
               {user.role === 'ADMIN'    && <NavItem to="/admin" onClick={closeMenu}>Admin</NavItem>}
+              {user.role === 'COORDINATOR' && <NavItem to="/coordinator" onClick={closeMenu}>Coordinator</NavItem>}
               <button
                 onClick={() => { logout(); closeMenu(); }}
                 className="mt-10 flex w-full items-center justify-center gap-4 rounded-none border-2 border-white py-5 font-mono text-[13px] font-black uppercase tracking-[0.2em] text-white hover:bg-white hover:text-black transition-all"

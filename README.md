@@ -142,8 +142,8 @@ To experience every flow end-to-end:
 ### As a brand-new student
 
 5. Open an incognito window → <http://localhost/register>.
-6. Fill the form. For the institution, pick any one (e.g. *BITS Pilani*).
-   For domain, pick any one (e.g. *Cybersecurity*).
+6. Fill the form. For the institution, pick any one (e.g. *ITER | SOA*).
+   For domain, pick any one (e.g. *Healthcare & Medical Technology*).
    - **Tip:** to test the registry-match flag, use a registration number
      from the seeded sample rows (`2026-VRTX-100` through `…-107`) with
      its matching email — those are seeded in `CollegeRegistry` so the

@@ -15,7 +15,8 @@ import 'dotenv/config';
 //   - RoundControl singleton (id="round_control") — all rounds LOCKED
 //   - Admin user (env-driven credentials, dev defaults)
 //   - 3 Jury users (deterministic dev passwords)
-//   - 5 Institutions, 5 Domains, 10 ProblemStatements
+//   - 10 Campus coordinator users (one per institution)
+//   - 10 Institutions, 29 Domains, 10 ProblemStatements
 //   - 8 sample CollegeRegistry rows (so admin verification flow is testable)
 //
 // What it does NOT seed:
@@ -33,6 +34,7 @@ const ADMIN_EMAIL = process.env.ADMIN_SEED_EMAIL ?? 'admin@vortex.local';
 const ADMIN_PASSWORD = process.env.ADMIN_SEED_PASSWORD ?? 'change-me-on-first-login';
 
 const JURY_DEFAULT_PASSWORD = process.env.JURY_SEED_PASSWORD ?? 'jury-dev-only';
+const COORDINATOR_DEFAULT_PASSWORD = process.env.COORDINATOR_SEED_PASSWORD ?? 'coord1234';
 
 // ── singletons ──────────────────────────────────────────────────────────────
 
@@ -71,42 +73,71 @@ const seedRoundControl = async () => {
 // ── taxonomy ────────────────────────────────────────────────────────────────
 
 const INSTITUTIONS = [
-  'Institute of Technology, Delhi',
-  'MIT World Peace University',
-  'BITS Pilani',
-  'SRM Institute',
-  'IIIT Hyderabad',
+  'ITER | SOA',
+  'SPS | SOA',
+  'SNC | SOA',
+  'IMS & SUM | SOA',
+  'IDS | SOA',
+  'SNIL | SOA',
+  'IAS | SOA',
+  'IVS & AH | SOA',
+  'IBCS | SOA',
+  'SHM | SOA',
 ];
 
 const DOMAINS = [
-  'Cybersecurity',
+  'Healthcare & Medical Technology',
+  'Pharmaceutical Innovation',
+  'Nursing & Patient Care',
+  'Mental Health & Wellness',
+  'Dental Healthcare',
+  'Agriculture & Smart Farming',
+  'Veterinary & Animal Welfare',
+  'Food Technology',
+  'Environmental Sustainability',
+  'Climate & Green Technology',
+  'Legal Technology',
+  'Cybersecurity & Digital Safety',
   'Artificial Intelligence',
-  'Blockchain',
-  'IoT & Robotics',
-  'FinTech',
+  'Education Technology',
+  'Business & Finance',
+  'Marketing & Consumer Experience',
+  'Hospitality & Tourism',
+  'Smart Campus Solutions',
+  'Social Impact & Community Development',
+  'E-Commerce & Retail',
+  'Productivity & Workflow Automation',
+  'Research & Innovation',
+  'IoT & Smart Devices',
+  'Public Health Systems',
+  'Women Safety & Empowerment',
+  'Accessibility & Inclusion',
+  'Rural Development',
+  'Supply Chain & Logistics',
+  'Open Innovation',
 ];
 
 const PROBLEM_STATEMENTS = [
-  ['Cybersecurity',           'Zero-trust architecture for smart cities',
-                              'Design and prototype a zero-trust framework for IoT devices in municipal networks.'],
-  ['Cybersecurity',           'Phishing-resistant SSO for student portals',
-                              'Build a passkey-based SSO with attested device binding.'],
-  ['Artificial Intelligence', 'Predictive maintenance for autonomous fleets',
-                              'Use telemetry to predict component failures with quantified uncertainty.'],
-  ['Artificial Intelligence', 'On-device speech-to-action assistant',
-                              'Latency-bounded NLU for low-power edge devices.'],
-  ['Blockchain',              'Decentralized identity for cross-border KYC',
-                              'A privacy-preserving DID system with selective disclosure.'],
-  ['Blockchain',              'Programmable carbon credits',
-                              'Tokenize carbon offsets with verifiable retirement events.'],
-  ['IoT & Robotics',          'Real-time supply-chain optimization with CV',
-                              'Computer-vision-driven warehouse routing under congestion.'],
-  ['IoT & Robotics',          'Disaster-response micro-drone swarm',
-                              'Autonomous coordination for search-and-locate in GPS-denied zones.'],
-  ['FinTech',                 'Privacy-preserving credit scoring',
-                              'Federated learning across lenders with differential privacy.'],
-  ['FinTech',                 'Real-time fraud detection at POS',
-                              'Sub-100ms decisioning with explainable reason codes.'],
+  ['Healthcare & Medical Technology', 'Remote triage assistant for primary care',
+                                      'Build a multilingual intake workflow that prioritizes patients using symptoms, vitals, and urgency rules.'],
+  ['Pharmaceutical Innovation',       'Cold-chain visibility for essential medicines',
+                                      'Track temperature excursions across storage and transit with automated alerting for quality teams.'],
+  ['Mental Health & Wellness',        'Early burnout signal detection for students',
+                                      'Design a privacy-conscious wellbeing check-in system with escalation pathways and self-help interventions.'],
+  ['Agriculture & Smart Farming',     'Precision irrigation for smallholder farms',
+                                      'Use soil, weather, and crop signals to recommend irrigation schedules that reduce water waste.'],
+  ['Environmental Sustainability',    'Smart waste segregation feedback loop',
+                                      'Prototype a vision-assisted waste sorting system that improves recycling compliance on campus.'],
+  ['Cybersecurity & Digital Safety',  'Phishing-resistant SSO for student portals',
+                                      'Build a passkey-based SSO with attested device binding and risk-based recovery flows.'],
+  ['Artificial Intelligence',         'On-device speech-to-action assistant',
+                                      'Create a low-latency assistant that converts natural speech into reliable actions on constrained devices.'],
+  ['Smart Campus Solutions',          'Predictive maintenance for campus infrastructure',
+                                      'Use equipment telemetry to forecast failures in lifts, labs, and utilities before outages occur.'],
+  ['Women Safety & Empowerment',      'Safe-route escort and rapid alert network',
+                                      'Develop a route-aware system for emergency escalation, volunteer response, and evidence capture.'],
+  ['Supply Chain & Logistics',        'Real-time warehouse routing under congestion',
+                                      'Optimize picking and movement paths using live aisle conditions, queueing data, and operational constraints.'],
 ];
 
 const seedTaxonomy = async () => {
@@ -120,8 +151,50 @@ const seedTaxonomy = async () => {
   }
   log(`Domains: ${DOMAINS.length} ensured`);
 
-  // ProblemStatement has no natural unique key → look up by (title, domainId)
-  // and create only if absent. Safe to re-run.
+  // Problem statements are seeded idempotently by (title, domainId).
+  // Remove legacy seed data that is no longer part of the supported domain set.
+  const removableProblemStatements = await prisma.problemStatement.findMany({
+    where: {
+      domain: { name: { notIn: DOMAINS } },
+      teams: { none: {} },
+    },
+    select: { id: true },
+  });
+
+  if (removableProblemStatements.length) {
+    await prisma.problemStatement.deleteMany({
+      where: { id: { in: removableProblemStatements.map((ps) => ps.id) } },
+    });
+    log(`Outdated ProblemStatements removed: ${removableProblemStatements.length}`);
+  }
+
+  const removableDomains = await prisma.domain.findMany({
+    where: { name: { notIn: DOMAINS } },
+    include: {
+      _count: {
+        select: {
+          users: true,
+          problemStatements: true,
+          teams: true,
+        },
+      },
+    },
+  });
+
+  let removedDomains = 0;
+  for (const domain of removableDomains) {
+    const { users, problemStatements, teams } = domain._count;
+    if (users + problemStatements + teams > 0) {
+      log(`Skipped outdated domain "${domain.name}" (users=${users}, problemStatements=${problemStatements}, teams=${teams})`);
+      continue;
+    }
+    await prisma.domain.delete({ where: { id: domain.id } });
+    removedDomains += 1;
+  }
+
+  if (removedDomains) log(`Outdated domains removed: ${removedDomains}`);
+
+  // Problem statements are keyed by title within a domain for idempotent seeding.
   const domainByName = Object.fromEntries(
     (await prisma.domain.findMany()).map((d) => [d.name, d.id]),
   );
@@ -142,15 +215,16 @@ const seedTaxonomy = async () => {
 
 // ── users ──────────────────────────────────────────────────────────────────
 
-const upsertPrivilegedUser = async ({ email, fullName, role, password }) => {
+const upsertPrivilegedUser = async ({ email, fullName, role, password, institutionId }) => {
   const passwordHash = await bcrypt.hash(password, ROUNDS);
   return prisma.user.upsert({
     where: { email },
-    update: {}, // do not reset password on re-seed; admin can rotate via API
+    update: institutionId ? { institutionId } : {}, // do not reset password on re-seed; admin can rotate via API
     create: {
       email,
       fullName,
       role,
+      institutionId,
       verificationStatus: 'VERIFIED',
       passwordHash,
       passwordIssuedAt: new Date(),
@@ -189,17 +263,50 @@ const seedJuries = async () => {
   log(`Juries: ${JURY_SPECS.length} ensured (default password: ${JURY_DEFAULT_PASSWORD})`);
 };
 
+const COORDINATOR_SPECS = [
+  { institutionName: 'ITER | SOA', email: 'coordinator.iter@vortex.local' },
+  { institutionName: 'SPS | SOA', email: 'coordinator.sps@vortex.local' },
+  { institutionName: 'SNC | SOA', email: 'coordinator.snc@vortex.local' },
+  { institutionName: 'IMS & SUM | SOA', email: 'coordinator.ims@vortex.local' },
+  { institutionName: 'IDS | SOA', email: 'coordinator.ids@vortex.local' },
+  { institutionName: 'SNIL | SOA', email: 'coordinator.snil@vortex.local' },
+  { institutionName: 'IAS | SOA', email: 'coordinator.ias@vortex.local' },
+  { institutionName: 'IVS & AH | SOA', email: 'coordinator.ivs@vortex.local' },
+  { institutionName: 'IBCS | SOA', email: 'coordinator.ibcs@vortex.local' },
+  { institutionName: 'SHM | SOA', email: 'coordinator.shm@vortex.local' },
+];
+
+const seedCoordinators = async () => {
+  const instByName = Object.fromEntries(
+    (await prisma.institution.findMany()).map((i) => [i.name, i.id]),
+  );
+
+  for (const spec of COORDINATOR_SPECS) {
+    const institutionId = instByName[spec.institutionName];
+    if (!institutionId) continue;
+    await upsertPrivilegedUser({
+      email: spec.email,
+      fullName: `${spec.institutionName} Coordinator`,
+      role: 'COORDINATOR',
+      institutionId,
+      password: COORDINATOR_DEFAULT_PASSWORD,
+    });
+  }
+
+  log(`Coordinators: ${COORDINATOR_SPECS.length} ensured (default password: ${COORDINATOR_DEFAULT_PASSWORD})`);
+};
+
 // ── registry ────────────────────────────────────────────────────────────────
 
 const REGISTRY_SAMPLES = [
-  ['2026-VRTX-100', 'Alice Vance',     'alice.vance@vortex.local',     'BITS Pilani'],
-  ['2026-VRTX-101', 'Bob Smith',       'bob.smith@vortex.local',       'BITS Pilani'],
-  ['2026-VRTX-102', 'Carla Mendes',    'carla.mendes@vortex.local',    'IIIT Hyderabad'],
-  ['2026-VRTX-103', 'Devraj Patil',    'devraj.patil@vortex.local',    'IIIT Hyderabad'],
-  ['2026-VRTX-104', 'Esha Nair',       'esha.nair@vortex.local',       'MIT World Peace University'],
-  ['2026-VRTX-105', 'Farhan Iqbal',    'farhan.iqbal@vortex.local',    'MIT World Peace University'],
-  ['2026-VRTX-106', 'Gita Roy',        'gita.roy@vortex.local',        'SRM Institute'],
-  ['2026-VRTX-107', 'Hari Menon',      'hari.menon@vortex.local',      'Institute of Technology, Delhi'],
+  ['2026-VRTX-100', 'Alice Vance',     'alice.vance@vortex.local',     'ITER | SOA'],
+  ['2026-VRTX-101', 'Bob Smith',       'bob.smith@vortex.local',       'SPS | SOA'],
+  ['2026-VRTX-102', 'Carla Mendes',    'carla.mendes@vortex.local',    'SNC | SOA'],
+  ['2026-VRTX-103', 'Devraj Patil',    'devraj.patil@vortex.local',    'IMS & SUM | SOA'],
+  ['2026-VRTX-104', 'Esha Nair',       'esha.nair@vortex.local',       'IDS | SOA'],
+  ['2026-VRTX-105', 'Farhan Iqbal',    'farhan.iqbal@vortex.local',    'SNIL | SOA'],
+  ['2026-VRTX-106', 'Gita Roy',        'gita.roy@vortex.local',        'IAS | SOA'],
+  ['2026-VRTX-107', 'Hari Menon',      'hari.menon@vortex.local',      'IVS & AH | SOA'],
 ];
 
 const seedRegistry = async () => {
@@ -219,6 +326,33 @@ const seedRegistry = async () => {
   log(`CollegeRegistry: ${REGISTRY_SAMPLES.length} ensured`);
 };
 
+const cleanupInstitutions = async () => {
+  const removableInstitutions = await prisma.institution.findMany({
+    where: { name: { notIn: INSTITUTIONS } },
+    include: {
+      _count: {
+        select: {
+          users: true,
+          registry: true,
+        },
+      },
+    },
+  });
+
+  let removedInstitutions = 0;
+  for (const institution of removableInstitutions) {
+    const { users, registry } = institution._count;
+    if (users + registry > 0) {
+      log(`Skipped outdated institution "${institution.name}" (users=${users}, registry=${registry})`);
+      continue;
+    }
+    await prisma.institution.delete({ where: { id: institution.id } });
+    removedInstitutions += 1;
+  }
+
+  if (removedInstitutions) log(`Outdated institutions removed: ${removedInstitutions}`);
+};
+
 // ── orchestration ──────────────────────────────────────────────────────────
 
 const main = async () => {
@@ -228,7 +362,9 @@ const main = async () => {
   await seedTaxonomy();
   await seedAdmin();
   await seedJuries();
+  await seedCoordinators();
   await seedRegistry();
+  await cleanupInstitutions();
   log('done');
 };
 
