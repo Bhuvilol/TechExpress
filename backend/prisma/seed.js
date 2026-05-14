@@ -190,20 +190,40 @@ const seedTaxonomy = async () => {
   log(`Domains: ${DOMAINS.length} ensured`);
 
   // Problem statements are seeded idempotently by (title, domainId).
-  // Remove legacy seed data that is no longer part of the supported domain set.
-  const removableProblemStatements = await prisma.problemStatement.findMany({
-    where: {
-      domain: { name: { notIn: DOMAINS } },
-      teams: { none: {} },
+  // Remove legacy seed data that is no longer part of the canonical set.
+  // A PS is "canonical" if its (title, domain.name) appears in PROBLEM_STATEMENTS.
+  // Anything else is removed UNLESS at least one team has selected it.
+  const canonicalKeys = new Set(
+    PROBLEM_STATEMENTS.map(([domainName, title]) => `${domainName}::${title}`),
+  );
+
+  const allCurrentPS = await prisma.problemStatement.findMany({
+    select: {
+      id: true,
+      title: true,
+      domain: { select: { name: true } },
+      _count: { select: { teams: true } },
     },
-    select: { id: true },
   });
 
-  if (removableProblemStatements.length) {
+  const removablePSIds = [];
+  let skippedDueToTeams = 0;
+  for (const ps of allCurrentPS) {
+    const key = `${ps.domain.name}::${ps.title}`;
+    if (canonicalKeys.has(key)) continue;
+    if (ps._count.teams > 0) {
+      log(`Skipped legacy PS "${ps.title}" in "${ps.domain.name}" (${ps._count.teams} team(s) attached)`);
+      skippedDueToTeams += 1;
+      continue;
+    }
+    removablePSIds.push(ps.id);
+  }
+
+  if (removablePSIds.length) {
     await prisma.problemStatement.deleteMany({
-      where: { id: { in: removableProblemStatements.map((ps) => ps.id) } },
+      where: { id: { in: removablePSIds } },
     });
-    log(`Outdated ProblemStatements removed: ${removableProblemStatements.length}`);
+    log(`Outdated ProblemStatements removed: ${removablePSIds.length}${skippedDueToTeams ? ` (skipped ${skippedDueToTeams} attached to teams)` : ''}`);
   }
 
   const removableDomains = await prisma.domain.findMany({
