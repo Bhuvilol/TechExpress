@@ -48,10 +48,11 @@ export const approve = async (req, res) => {
     details: { email: user.email, via: 'COORDINATOR' },
   });
 
+  // Coordinators must NEVER see the plaintext password — they only confirm
+  // identity. The password is delivered exclusively to the student by email.
   res.json({
     message: 'User verified and credentials emailed',
     user,
-    password: plaintextPassword,
   });
 };
 

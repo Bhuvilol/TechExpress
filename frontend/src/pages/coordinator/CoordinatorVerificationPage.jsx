@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ShieldCheck, Search, Clock, Building2, Copy } from 'lucide-react';
+import { ShieldCheck, Search, Clock, Building2 } from 'lucide-react';
 import { api } from '../../lib/api.js';
 import { useApi } from '../../hooks/useApi.js';
 import { useToast } from '../../contexts/ToastContext.jsx';
@@ -22,7 +22,6 @@ export const CoordinatorVerificationPage = () => {
   const [tab, setTab] = useState('PENDING');
   const [search, setSearch] = useState('');
   const [reject, setReject] = useState(null);
-  const [credential, setCredential] = useState(null);
 
   const pending = useApi(
     () => api.get('/api/coordinator/verification/pending', { query: { search } }),
@@ -49,11 +48,8 @@ export const CoordinatorVerificationPage = () => {
 
   const approve = async (student) => {
     try {
-      const res = await api.post(`/api/coordinator/verification/students/${student.id}/approve`);
-      toast.success(`Approved ${student.fullName}.`);
-      if (res?.password) {
-        setCredential({ user: res.user ?? student, password: res.password, label: 'Approved' });
-      }
+      await api.post(`/api/coordinator/verification/students/${student.id}/approve`);
+      toast.success(`Approved ${student.fullName}. Credentials emailed to the student.`);
       refresh();
     } catch (err) {
       toast.error(err.message);
@@ -183,7 +179,6 @@ export const CoordinatorVerificationPage = () => {
       )}
 
       <RejectModal target={reject} onClose={() => setReject(null)} onDone={refresh} />
-      <CredentialModal cred={credential} onClose={() => setCredential(null)} />
     </>
   );
 };
@@ -264,59 +259,3 @@ const RejectModal = ({ target, onClose, onDone }) => {
   );
 };
 
-const CredentialModal = ({ cred, onClose }) => {
-  const toast = useToast();
-
-  if (!cred) return null;
-
-  const copy = async (value) => {
-    try {
-      await navigator.clipboard.writeText(value);
-      toast.success('Copied to clipboard.');
-    } catch {
-      toast.warn('Copy failed. Select and copy manually.');
-    }
-  };
-
-  return (
-    <Modal
-      open
-      onClose={onClose}
-      size="sm"
-      title={`${cred.label}: credentials`}
-      footer={<button className="glow-button" onClick={onClose}>Done</button>}
-    >
-      <div className="space-y-4">
-        <div className="rounded-none border border-white/20 bg-white/5 p-3 font-mono text-[11px] leading-relaxed text-white/60">
-          One-shot reveal for coordinator reference. The student password was rotated and emailed during approval.
-        </div>
-
-        <CredRow
-          label="Email"
-          value={cred.user?.email || '-'}
-          onCopy={() => copy(cred.user?.email || '')}
-        />
-        <CredRow
-          label="Password"
-          value={cred.password}
-          onCopy={() => copy(cred.password)}
-          mono
-        />
-      </div>
-    </Modal>
-  );
-};
-
-const CredRow = ({ label, value, onCopy, mono }) => (
-  <div>
-    <div className="mb-1 font-mono text-[10px] uppercase tracking-[0.15em] text-text-dim">{label}</div>
-    <div className="flex items-center gap-2">
-      <code className={`flex-1 select-all rounded-none border border-white/10 bg-white/5 px-3 py-2.5 ${mono ? 'font-sans text-[20px] font-bold tracking-[0.4em] text-white' : 'font-mono text-[13px] text-text-primary'}`}>
-        {value}
-      </code>
-      <button type="button" className="ghost-button inline-flex items-center gap-1" onClick={onCopy}>
-        <Copy size={12} /> Copy
-      </button>
-    </div>
-  </div>
-);
