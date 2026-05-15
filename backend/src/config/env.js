@@ -27,9 +27,9 @@ const schema = z.object({
   // MAIL_FROM must use a verified domain in Resend, e.g. "Vortex <noreply@yourdomain.com>".
   // Defaults to Resend's sandbox sender, which can ONLY deliver to your own Resend
   // account email — useless for real users, fine for dev smoke tests.
-  RESEND_API_KEY: z.string().min(1).optional(),
-  MAIL_FROM: z.string().min(1).optional(),
-  MAIL_REPLY_TO: z.string().email().optional(),
+  RESEND_API_KEY: z.string().min(1).optional().or(z.literal('').transform(() => undefined)),
+  MAIL_FROM: z.string().min(1).optional().or(z.literal('').transform(() => undefined)),
+  MAIL_REPLY_TO: z.string().email().optional().or(z.literal('').transform(() => undefined)),
 });
 
 const parsed = schema.safeParse(process.env);
