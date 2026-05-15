@@ -1,12 +1,12 @@
 import { userService } from '../services/user.service.js';
 import { registryService } from '../services/registry.service.js';
 import { auditService } from '../services/audit.service.js';
-import {
-  sendVerificationApprovedMail,
-  sendVerificationRejectedMail,
-  sendAccessRevokedMail,
-  sendAccessRestoredMail,
-} from '../utils/mail.js';
+import { sendVerificationRejectedMail } from '../utils/mail.js';
+
+// Admin-initiated credential operations (approve, restore, reissue) intentionally
+// do NOT send emails. The plaintext password is surfaced in the response body for
+// the admin to copy and relay manually. Email-on-approve is reserved for the
+// coordinator flow, where the campus contact verifies the student.
 
 // All handlers below require requireAuth + requireRole('ADMIN') at the route layer.
 
@@ -44,15 +44,6 @@ export const lookupByRegistrationNo = async (req, res) => {
 export const approve = async (req, res) => {
   const { user, plaintextPassword } = await userService.approveStudent(req.params.id);
 
-  // Mail BEFORE audit so a mail failure surfaces as a 5xx and the admin
-  // can retry. The DB state is already committed; that's intentional —
-  // reissuePassword exists for the recovery path.
-  await sendVerificationApprovedMail({
-    to: user.email,
-    fullName: user.fullName,
-    password: plaintextPassword,
-  });
-
   auditService.record({
     actorId: req.user.id,
     action: 'USER_VERIFIED',
@@ -66,7 +57,7 @@ export const approve = async (req, res) => {
   // the database stores only the bcrypt hash, so once this response is
   // discarded the password is unrecoverable except via reissue().
   res.json({
-    message: 'User verified and credentials emailed',
+    message: 'User verified — share the password manually',
     user,
     password: plaintextPassword,
   });
@@ -93,12 +84,7 @@ export const reject = async (req, res) => {
 };
 
 export const revoke = async (req, res) => {
-  const { user, snapshot } = await userService.revokeStudent(req.params.id);
-
-  await sendAccessRevokedMail({
-    to: snapshot.email,
-    fullName: snapshot.fullName,
-  });
+  const { user } = await userService.revokeStudent(req.params.id);
 
   auditService.record({
     actorId: req.user.id,
@@ -113,12 +99,6 @@ export const revoke = async (req, res) => {
 export const restore = async (req, res) => {
   const { user, plaintextPassword } = await userService.restoreRevokedStudent(req.params.id);
 
-  await sendAccessRestoredMail({
-    to: user.email,
-    fullName: user.fullName,
-    password: plaintextPassword,
-  });
-
   auditService.record({
     actorId: req.user.id,
     action: 'USER_VERIFIED',
@@ -128,7 +108,7 @@ export const restore = async (req, res) => {
   });
 
   res.json({
-    message: 'Access restored and credentials emailed',
+    message: 'Access restored — share the password manually',
     user,
     password: plaintextPassword,
   });
@@ -136,12 +116,6 @@ export const restore = async (req, res) => {
 
 export const reissue = async (req, res) => {
   const { user, plaintextPassword } = await userService.reissuePassword(req.params.id);
-
-  await sendVerificationApprovedMail({
-    to: user.email,
-    fullName: user.fullName,
-    password: plaintextPassword,
-  });
 
   auditService.record({
     actorId: req.user.id,
@@ -152,7 +126,7 @@ export const reissue = async (req, res) => {
   });
 
   res.json({
-    message: 'New password issued and emailed',
+    message: 'New password issued — share it manually',
     password: plaintextPassword,
     user,
   });

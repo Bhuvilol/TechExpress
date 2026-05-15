@@ -84,7 +84,7 @@ export const AdminVerificationPage = () => {
     const ok = await confirm({
       title: `Reveal credentials for ${u.fullName}?`,
       message:
-        'The current password is hashed and unrecoverable. To show a usable code, the system will REISSUE a new 6-digit password — replacing the current one and emailing the user.',
+        'The current password is hashed and unrecoverable. To show a usable code, the system will REISSUE a new 6-digit password — replacing the current one. Share it with the user manually; admin actions do not send email.',
       confirmLabel: 'Reissue & reveal',
     });
     if (!ok) return;
@@ -98,7 +98,7 @@ export const AdminVerificationPage = () => {
   const restore = async (u) => {
     const ok = await confirm({
       title: `Undo revoke for ${u.fullName}?`,
-      message: 'This restores login access, issues a fresh 6-digit password, and emails it to the student.',
+      message: 'This restores login access and issues a fresh 6-digit password. Share it with the student manually; admin actions do not send email.',
       confirmLabel: 'Undo revoke',
     });
     if (!ok) return;
@@ -115,7 +115,7 @@ export const AdminVerificationPage = () => {
       <PageHeader
         kicker="VERIFICATION QUEUE"
         title="OPERATIVE REVIEW"
-        description="Approve or reject self-registered students. Verified accounts receive a 6-digit login password by email."
+        description="Approve or reject self-registered students. Approving issues a 6-digit password shown once on this screen — share it with the student manually. Coordinator approvals send the email; admin approvals do not."
       />
 
       <div className="relative mb-8 w-full">

@@ -22,6 +22,14 @@ const schema = z.object({
   ADMIN_SEED_PASSWORD: z.string().min(7).optional(),
   JURY_SEED_PASSWORD: z.string().min(7).optional(),
   COORDINATOR_SEED_PASSWORD: z.string().min(7).optional(),
+
+  // Resend (transactional email). Optional — when absent, mail.js logs and skips.
+  // MAIL_FROM must use a verified domain in Resend, e.g. "Vortex <noreply@yourdomain.com>".
+  // Defaults to Resend's sandbox sender, which can ONLY deliver to your own Resend
+  // account email — useless for real users, fine for dev smoke tests.
+  RESEND_API_KEY: z.string().min(1).optional(),
+  MAIL_FROM: z.string().min(1).optional(),
+  MAIL_REPLY_TO: z.string().email().optional(),
 });
 
 const parsed = schema.safeParse(process.env);
